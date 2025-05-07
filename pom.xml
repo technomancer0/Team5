@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>expense-tracker</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.0</version> <!-- Use the latest version -->
+        <relativePath/> <!-- Lookup parent from repository -->
+    </parent>
+
+    <dependencies>
+        <!-- Spring Boot Web Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- MySQL Connector -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring Boot DevTools (Optional for development) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring Boot Test (Optional for testing) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Springfox Swagger -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <spring.datasource.url>jdbc:mysql://127.0.0.1:3306/app_data</spring.datasource.url>
+        <spring.datasource.username>root</spring.datasource.username>
+        <spring.datasource.password>rootpassword</spring.datasource.password>
+        <spring.jpa.hibernate.ddl-auto>update</spring.jpa.hibernate.ddl-auto>
+    </properties>
+</project>
+
+// filepath: src/main/java/management/ExpenseTrackerApplication.java
+package management;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ExpenseTrackerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ExpenseTrackerApplication.class, args);
+    }
+}
+
+// filepath: src/main/java/management/DataManagementController.java
+package management;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class DataManagementController {
+
+    @Autowired
+    private Data_management dataManagement;
+
+    @PostMapping("/insertCompany")
+    public String insertCompany(@RequestParam int id, @RequestParam String name, @RequestParam String password) {
+        dataManagement.insert_company(id, name, password);
+        return "Company inserted successfully!";
+    }
+
+    @PostMapping("/createFinanceReport")
+    public String createFinanceReport(@RequestParam int companyId, @RequestParam int timeId, @RequestParam String timePeriod) {
+        dataManagement.create_finance_report(companyId, timeId, timePeriod);
+        return "Finance report created successfully!";
+    }
+
+    // Add similar endpoints for other methods
+}
+
+// filepath: src/main/java/management/SwaggerConfig.java
+package management;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+
+@Configuration
+public class SwaggerConfig {
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("management"))
+                .paths(PathSelectors.any())
+                .build();
+    }
+}
